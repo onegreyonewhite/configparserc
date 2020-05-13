@@ -22,10 +22,14 @@ limitations under the License.
 import typing as _t
 import re
 import os
-import io
 import json
 import pytimeparse
 from functools import reduce
+
+
+cdef extern from '_config.h' nogil:
+    int __has_only_whitespaces(char*)
+
 
 from libc.stdio cimport getline, FILE, fopen, fclose, printf, ftell
 from posix.stat cimport stat, struct_stat
@@ -35,9 +39,6 @@ from libc.string cimport strlen
 from cpython.dict cimport PyDict_GetItem, PyDict_Contains, PyDict_SetItem, PyDict_New
 from cpython.unicode cimport PyUnicode_Replace
 
-
-cdef extern from '_config.h' nogil:
-    int __has_only_whitespaces(char*)
 
 cdef dict __get_dict_from_dict_for_reduce(dict collect, str key):
     if PyDict_Contains(collect, key) == 1:
@@ -208,9 +209,6 @@ cdef class __BaseDict(dict):
 
 
 cdef class ConfigParserC(__BaseDict):
-    """
-
-    """
 
     section_regex = re.compile(r"^\[(?P<section>(.+))\].*$", re.MULTILINE)
     pair_regex = re.compile(r"^(?P<key>([^\s]+?))[\s]{0,}=[\s]{0,}(?P<value>(.*?))[\s]{0,}$", re.MULTILINE)
@@ -396,7 +394,7 @@ cdef class ConfigParserC(__BaseDict):
 
     def parse_text(self, text):
         if not text:
-            return 
+            return
         error = self._parse_text(text.encode('utf-8'))
         if error:
             raise ParseError('Couldnt parse config string without section and key-value in text.')

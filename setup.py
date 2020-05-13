@@ -385,6 +385,7 @@ if 'develop' in sys.argv:
     ext_list = []
 
 kwargs = dict(
+    name='configparserc',
     packages=find_packages(exclude=['tests']+ext_list),
     ext_modules_list=ext_list,
     install_requires=[

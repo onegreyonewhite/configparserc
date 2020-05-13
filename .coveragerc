@@ -1,0 +1,16 @@
+[run]
+source = configparserc
+parallel = True
+concurrency =
+    thread
+    multiprocessing
+omit =
+    *.tox/*
+    *setup.py
+
+[report]
+fail_under = 100
+show_missing = True
+exclude_lines =
+    pragma: no cover
+    nocv

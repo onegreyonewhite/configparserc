@@ -1,4 +1,4 @@
-'''
+"""
 The ConfigParserC Project (https://gitlab.com/onegreyonewhite/configparserc)
 Copyright (C) 2019-2020 Sergey Klyuykov
 
@@ -14,6 +14,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-'''
+"""
 
 __version__ = '1.0.0'
