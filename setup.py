@@ -379,6 +379,7 @@ def make_setup(**opts):
 
 ext_list = [
     'configparserc.config',
+    'configparserc.tools',
 ]
 
 if 'develop' in sys.argv:

@@ -1,6 +1,9 @@
 [run]
-source = configparserc
+source =
+    configparserc
+    tests
 parallel = True
+plugins = Cython.Coverage
 concurrency =
     thread
     multiprocessing
@@ -14,3 +17,4 @@ show_missing = True
 exclude_lines =
     pragma: no cover
     nocv
+    MemoryError
