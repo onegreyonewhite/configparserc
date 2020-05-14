@@ -66,8 +66,12 @@ class ConfigTestCase(unittest.TestCase):
         class DBDefaultSettings(Section):
             type_port = IntType()
 
+        class TestAppendSection(AppendSection):
+            pass
+
         class TestConfigParserC(ConfigParserC):
             section_class_another = TestSecondSection
+            section_class_append = TestAppendSection
             section_overload = {
                 'another.sub': TestThirdSection,
                 'another.keyhandler': TestKeyHandler,
@@ -75,6 +79,9 @@ class ConfigTestCase(unittest.TestCase):
                 'db': DBDefaultSettings,
             }
             defaults = {
+                'append': {
+                    'exists': '123'
+                },
                 'withdefault': {
                     'default1': 'default_value1',
                     'default2': 159,
@@ -116,7 +123,7 @@ class ConfigTestCase(unittest.TestCase):
         config_text = '[another]\nanother_key1 = some_new_value'
         config_test_default = '[db]\nengine = django.db.backends.mysql\nname = vsttest\nuser = vsttest\npassword = vsttest\nhost = localhost\nport = 3306\n[db.options]\ninit_command = some_command'
 
-        self.assertEqual(list(test_parser.keys()), ['withdefault', 'another', 'db', 'subdef'])
+        self.assertEqual(list(test_parser.keys()), ['append', 'withdefault', 'another', 'db', 'subdef'])
 
         config_data = {
             'main': {
@@ -137,7 +144,8 @@ class ConfigTestCase(unittest.TestCase):
                 'key22': '/tmp/kwargs_str',
                 'jsonkey': [{"jkey": "jvalue"}],
                 'formatstr': 'value4',
-                'formatint': '251'
+                'formatint': '251',
+                'without_type': '123'
             },
             'to_json': {
                 "jkey": "jvalue"
@@ -203,6 +211,10 @@ class ConfigTestCase(unittest.TestCase):
                 'rec': {
                     'recurs_key': 'recurseval'
                 }
+            },
+            'append': {
+                'exists': '123',
+                'new': '1234'
             }
         }
 
@@ -210,6 +222,7 @@ class ConfigTestCase(unittest.TestCase):
         test_parser.parse_files(files_list)
         test_parser.parse_text(config_text)
         test_parser.parse_text(config_test_default)
+        test_parser.parse_text('')
         # Check is filled config
         self.assertTrue(test_parser)
 
@@ -240,7 +253,16 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(isinstance(test_parser['add_item']['subs'], TestFirstSection))
         self.assertDictEqual(test_parser['add_item'], {'subs': {}})
 
+        # Check non-existed section
+        self.assertDictEqual(test_parser.get('no_section', {}), {})
+        self.assertDictEqual(test_parser['no_section'], {})
+        self.assertTrue(not test_parser['add_item'] == {'subs': {"extra": 1}})
+        self.assertTrue(not test_parser['no_section'] == 1)
+
         # Make manual typeconversation, and two times conversation same value
+        self.assertEqual(test_parser['main'].getbytes('keybytes1'), 2560)
+        self.assertEqual(test_parser['main']['without_type'], '123')
+        self.assertEqual(test_parser['main'].get('get_nonexists_val', 1), 1)
         self.assertEqual(test_parser['main'].getint('key2'), 251)
         self.assertEqual(test_parser['gettype'].getint('toint'), 257)
         self.assertTrue(isinstance(test_parser['gettype'].getint('toint'), int))

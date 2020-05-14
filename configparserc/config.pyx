@@ -1,4 +1,4 @@
-# cython: c_string_type=str, c_string_encoding=utf8, linetrace=True, profile=True
+# cython: c_string_type=str, c_string_encoding=utf8, linetrace=True, profile=True, binding=True
 # distutils: define_macros=CYTHON_TRACE_NOGIL=1
 
 '''
@@ -279,8 +279,6 @@ cdef class ConfigParserC(__BaseDict):
         return self.get_section_class(section_name)(section_name, self, *args, **kwargs)
 
     def get_section_class(self, section_name):
-        if isinstance(section_name, bytes):
-            section_name = section_name.decode('utf-8')
         if section_name in self.__sections_map:
             return self.__sections_map[section_name]
         elif hasattr(self, 'section_class_' + section_name):
@@ -295,16 +293,11 @@ cdef class ConfigParserC(__BaseDict):
 
     cdef object _parse_pair(self, str line):
         cdef:
-            str key, value
             object match
 
         match = self.pair_regex.match(line)
         if match is not None:
-            key = match.group('key')
-            if not key:
-                return
-            value = match.group('value')
-            return key, value
+            return match.group('key'), match.group('value')
 
     cdef object _add_section(self, str section_name):
         return __get_or_create_section_recursive(section_name.split('.'), section_name, self, self)
@@ -322,9 +315,7 @@ cdef class ConfigParserC(__BaseDict):
         while <long>config_file_size > ftell(config_file):
             line = NULL
             with nogil:
-                if getline(&line, &count, config_file) == -1:
-                    printf('Failed read line or end of file')
-                    break
+                if getline(&line, &count, config_file) == -1: break
             if __has_only_whitespaces(line) == 1:
                 continue
             elif line[0] == b'#' or line[0] == b';':
@@ -419,8 +410,6 @@ cdef class Section(__BaseDict):
         dict __type_map
 
     def __init__(self, name, config, default=None, type_map=None):
-        if isinstance(name, bytes):
-            name = name.decode('utf-8')
         self.name = name
         self.config = config
 
@@ -545,9 +534,7 @@ cdef class Section(__BaseDict):
             conversation_cls = conv_class
         else:
            conversation_cls = self.get_type_conversation_instance(key)
-        if conversation_cls is not None:
-            return conversation_cls(value)
-        return value
+        return conversation_cls(value) if conversation_cls is not None else value
 
     def generate_section_string(self):
         section_str = '[' + self.get_name() + ']\n'
@@ -588,3 +575,11 @@ cdef class Section(__BaseDict):
 
     def getjson(self, option, fallback = None):
         return self.type_conversation(None, self.get(option, str(fallback)), JsonType())
+
+
+cdef class AppendSection(Section):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for key, value in self.get_default_data().items():
+            if key not in self:
+                self[key] = value
