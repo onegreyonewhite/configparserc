@@ -9,12 +9,14 @@ except ImportError:  # nocv
     import pyximport
     pyximport.install(
         language_level=3,
-        setup_args={'include_dirs': [
-            '/'.join([os.path.dirname(__file__), 'include']),
-            '/'.join([os.path.dirname(__file__), 'configparserc', 'include']),
-            '/'.join(['.', os.path.dirname(__file__), 'include']),
-            '/'.join(['.', os.path.dirname(__file__), 'configparserc', 'include']),
-        ]}
+        setup_args=dict(
+            include_dirs=[
+                '/'.join([os.path.dirname(__file__), 'include']),
+                '/'.join([os.path.dirname(__file__), 'configparserc', 'include']),
+                '/'.join(['.', os.path.dirname(__file__), 'include']),
+                '/'.join(['.', os.path.dirname(__file__), 'configparserc', 'include']),
+            ]
+        )
     )
     from configparserc.config import *
 

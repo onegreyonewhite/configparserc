@@ -1,5 +1,4 @@
-# cython: c_string_type=str, c_string_encoding=utf8, linetrace=True, profile=True, language_level=3
-
+# cython: c_string_type=str, c_string_encoding=utf8
 '''
 The ConfigParserC Project (https://gitlab.com/onegreyonewhite/configparserc)
 Copyright (C) 2019-2020 Sergey Klyuykov
