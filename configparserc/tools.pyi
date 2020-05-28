@@ -28,7 +28,7 @@ class File:
     def readline(self) -> _t.Text:
         ...
 
-    def readlines(self, replace_newline: bool = True) -> _t.Generator[_t.Text]:
+    def readlines(self, replace_newline: bool = True) -> _t.Generator[_t.Text, None, None]:
         ...
 
     def __enter__(self) -> File:
