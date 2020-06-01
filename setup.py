@@ -393,7 +393,7 @@ if 'develop' in sys.argv:
 
 kwargs = dict(
     name='configparserc',
-    packages=find_packages(exclude=['tests']+ext_list),
+    packages=find_packages(exclude=['tests']+ext_list)+['configparserc-stubs'],
     ext_modules_list=ext_list,
     install_requires=[
         'pytimeparse==1.1.8',

@@ -3,3 +3,4 @@ include setup.cfg
 include configparserc/config.pyi
 include configparserc/tools.pyi
 include configparserc/include/_config.h
+recursive-include configparserc-stubs *

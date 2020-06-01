@@ -71,6 +71,11 @@ class Section(__BaseDict):
     def getjson(self, option, fallback = None) -> JsonBaseType:
         ...
 
+
+class AppendSection(Section):
+    ...
+
+
 class ConfigParserC(__BaseDict):
     section_defaults: _t.Dict
     __sections_map: _t.Dict
