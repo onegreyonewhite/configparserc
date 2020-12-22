@@ -397,6 +397,7 @@ kwargs = dict(
     ext_modules_list=ext_list,
     install_requires=[
         'pytimeparse==1.1.8',
+        'pyyaml>=3.13,<5.4'
     ],
     project_urls={
         "Issue Tracker": "https://gitlab.com/onegreyonewhite/configparserc/-/issues",

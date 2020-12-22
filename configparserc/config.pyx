@@ -1,5 +1,5 @@
 # cython: c_string_type=str, c_string_encoding=utf8
-'''
+"""
 The ConfigParserC Project (https://gitlab.com/onegreyonewhite/configparserc)
 Copyright (C) 2019-2020 Sergey Klyuykov
 
@@ -15,14 +15,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-'''
-
+"""
+import os
 import typing as _t
 import re
-import os
 import json
 import pytimeparse
+import yaml
 from functools import reduce
+from .tools import File
 
 
 cdef extern from '_config.h' nogil:
@@ -36,6 +37,9 @@ from libc.stdlib cimport free
 from libc.string cimport strlen
 from cpython.dict cimport PyDict_GetItem, PyDict_Contains, PyDict_SetItem, PyDict_New
 from cpython.unicode cimport PyUnicode_Replace
+
+
+YAML_LOADER = getattr(yaml, 'CSafeLoader', yaml.SafeLoader)
 
 
 cdef dict __get_dict_from_dict_for_reduce(dict collect, str key):
@@ -376,9 +380,24 @@ cdef class ConfigParserC(__BaseDict):
         if error:
             raise ParseError(f'Couldnt parse config string without section or key-value in file `{filename}`.')
 
+    def parse_yaml_file(self, filename):
+        with open(filename) as fd:
+            for document in yaml.load_all(fd, Loader=YAML_LOADER):
+                if not document:
+                    continue
+                for section_name, section_data in document.items():
+                    if section_name in self:
+                        self[section_name].update(section_data)
+                    else:
+                        self[section_name] = section_data
+
     def parse_files(self, filename_array: _t.Sequence):
         for filepath in list(filter(bool, filename_array))[::-1]:
-            if os.path.exists(filepath):
+            if not os.path.exists(filepath):
+                continue
+            if filepath.rsplit('.', 1)[-1] in ('yaml', 'yml'):
+                self.parse_yaml_file(filepath)
+            else:
                 self.parse_file(filepath)
 
     def parse_text(self, text):

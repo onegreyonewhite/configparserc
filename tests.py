@@ -40,6 +40,7 @@ class ConfigTestCase(unittest.TestCase):
                 'lstdot': ListType(separator='.'), 'tostr': StrType()
             }
             type_key2 = IntType()
+            type_key_from_yaml = IntType()
             type_jsonkey = JsonType()
             type_keyint1 = IntType()
             type_keyint2 = IntType()
@@ -120,7 +121,8 @@ class ConfigTestCase(unittest.TestCase):
                                   withdefault=TestDefaultSettings),
             format_kwargs=format_kwargs
         )
-        files_list = ['test_conf.ini', 'test_conf2.ini', 'test_conf3.ini']
+        files_list = ['test_conf.ini', 'test_conf2.ini', 'test_conf3.ini', 'test_yaml_config.yaml']
+        files_list.append('sljkdhkjlsjdglksdjsdhfskjfwehwioejksn')
         files_list = map(lambda x: os.path.join(os.path.dirname(__file__), x), files_list)
         config_text = '[another]\nanother_key1 = some_new_value'
         config_test_default = '[db]\nengine = django.db.backends.mysql\nname = vsttest\nuser = vsttest\npassword = vsttest\nhost = localhost\nport = 3306\n[db.options]\ninit_command = some_command'
@@ -132,6 +134,7 @@ class ConfigTestCase(unittest.TestCase):
                 'key1': 'value4',
                 'key2': 251,
                 'key3': True,
+                'key_from_yaml': 123,
                 'keybytes1': 2560,
                 'keybytes2': 3221225472,
                 'keybytes3': 2,
@@ -217,6 +220,10 @@ class ConfigTestCase(unittest.TestCase):
             'append': {
                 'exists': '123',
                 'new': '1234'
+            },
+            'yaml_section': {
+                "item": "new string data",
+                "item2": '123'
             }
         }
 
