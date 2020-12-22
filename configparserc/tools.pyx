@@ -17,7 +17,7 @@ limitations under the License.
 
 '''
 
-from libc.stdio cimport FILE, fopen, fread, fwrite, fflush, fclose, feof, getline
+from libc.stdio cimport FILE, fopen, fread, fwrite, fflush, fclose, feof, getline, ftell
 from libc.string cimport strlen
 from posix.stat cimport stat, struct_stat
 from libc.stdlib cimport malloc, free
@@ -65,11 +65,14 @@ cdef class File:
         with nogil:
             return self.st.st_size
 
-    cdef _read(self):
-        cdef long int size, typesize
+    cdef _read(self, unsigned int max_bytes = 0):
+        cdef long int size, file_size, current, typesize
 
         with nogil:
-            size = self.st.st_size
+            file_size = self.st.st_size
+            size = file_size - ftell(self.file)
+            if max_bytes != 0 and size > max_bytes:
+                size = max_bytes
             typesize = sizeof(char)
             if self.buff == NULL:
                 self.buff = <char*> malloc(size * typesize)
@@ -78,10 +81,10 @@ cdef class File:
 
         return self.buff[:size]
 
-    def read(self):
+    def read(self, max_bytes=0):
         if not self.allowed():
             raise IOError('File is not found.')
-        return self._read()
+        return self._read(max_bytes)
 
     cdef void _write(self, const char* value):
         size = len(value)

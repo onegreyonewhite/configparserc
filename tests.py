@@ -372,6 +372,12 @@ class FileTestCase(unittest.TestCase):
                 )
                 self.assertTrue(not tmp_fd.feof())
 
+            with ToolFile(fd.name) as tmp_fd:
+                self.assertEqual(
+                    tmp_fd.read(10),
+                    text[:10]
+                )
+
     def test_get_file_value(self):
         value = 'Some secret value'
         with tmp.NamedTemporaryFile(mode='w') as fd:

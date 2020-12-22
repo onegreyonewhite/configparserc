@@ -13,7 +13,7 @@ class File:
     def __init__(self, filename: _t.Text, mode: _t.Text = 'r'):
         ...
 
-    def read(self) -> _t.Text:
+    def read(self, max_bytes: _t.SupportsInt = 0) -> _t.Text:
         ...
 
     def write(self, value: _t.Text) -> _t.NoReturn:

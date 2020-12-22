@@ -381,7 +381,7 @@ cdef class ConfigParserC(__BaseDict):
             raise ParseError(f'Couldnt parse config string without section or key-value in file `{filename}`.')
 
     def parse_yaml_file(self, filename):
-        with open(filename) as fd:
+        with File(filename) as fd:
             for document in yaml.load_all(fd, Loader=YAML_LOADER):
                 if not document:
                     continue
