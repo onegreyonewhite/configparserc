@@ -453,7 +453,9 @@ cdef class Section(__BaseDict):
         format_string = self.config.format_string
         key = format_string(key, self.name)
         if isinstance(value, dict) and not isinstance(value, Section):
-            value = self.config.get_section_instance(self._get_subsection_name(key), value)
+            section = self.config.get_section_instance(self._get_subsection_name(key))
+            section.update(value)
+            value = section
         elif isinstance(value, str):
             value = format_string(value, self.name)
         PyDict_SetItem(self, key, self.type_conversation(key, value))
@@ -503,6 +505,13 @@ cdef class Section(__BaseDict):
 
             return value
         return super(Section, self).__getitem__(item)
+
+    def update(self, other = None, **kwargs):
+        if other and isinstance(other, dict):
+            for k, v in other.items():
+                self[k] = v
+        if kwargs:
+            self.update(kwargs)
 
     def get_default_data(self):
         return self.__get_default_data()

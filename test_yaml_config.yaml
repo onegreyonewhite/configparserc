@@ -9,6 +9,7 @@ yaml_section:
   item2: '123'
 
 main:
-  key_from_yaml: 123
+  # Will be int cause parsed correctly
+  key_from_yaml: '123'
 
 ---

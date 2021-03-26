@@ -341,6 +341,34 @@ class ConfigTestCase(unittest.TestCase):
         parser_from_out_str.parse_text(test_parser.generate_config_string())
         self.assertDictEqual(parser_from_out_str.all(), test_parser.all())
 
+    def test_sections_custom_working(self):
+        class TestFirstLevelSection(Section):
+            type_key1 = IntType()
+
+        class TestSecondLevelSection(Section):
+            type_key1 = IntType()
+
+
+        config = ConfigParserC(section_overload={
+            'first': TestFirstLevelSection,
+            'first.second': TestSecondLevelSection,
+        })
+
+        config.parse_text('')
+
+        section = config.get_section_instance('first')
+        section.update(**{"second": {'key1': "3"}})
+
+        section_data = section.all()
+        self.assertEqual(section_data['second']['key1'], 3)
+
+        config.clear()
+        self.assertFalse(config)
+
+        config['first'] = {"second": {'key1': "3"}}
+        section_data = section.all()
+        self.assertEqual(section_data['second']['key1'], 3)
+
 
 class FileTestCase(unittest.TestCase):
     def __get_a_lot_of_text(self, limit=1000):
