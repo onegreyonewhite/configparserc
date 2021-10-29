@@ -44,8 +44,10 @@ class __BaseDict(_t.Dict):
 class Section(__BaseDict):
     subsections: _t.Generator
     subsections_names: _t.Generator
+    parent: _t.Optional['Section']
+    main_config: 'ConfigParserC'
 
-    def __init__(self, name: _t.Text, config: ConfigParserC, default: _t.Dict = None, type_map: _t.Dict = None):
+    def __init__(self, name: _t.Text, config: 'ConfigParserC', default: _t.Dict = None, type_map: _t.Dict = None):
         super().__init__()
 
     def get_default_data(self) -> _t.Dict:
@@ -84,11 +86,13 @@ class ConfigParserC(__BaseDict):
     def __init__(self, section_overload: _t.Dict = None, section_defaults: _t.Dict = None, format_kwargs: _t.Dict = None):
         super().__init__()
 
-    def parse_files(self, filename_array: _t.Sequence) -> _t.NoReturn:
+    def parse_files(self, filename_array: _t.Sequence) -> None:
         ...
     def parse_file(self, filename: _t.Text):
         ...
-    def parse_text(self, text: _t.Text) -> _t.NoReturn:
+    def parse_yaml_file(self, filename: _t.Text):
+        ...
+    def parse_text(self, text: _t.Text) -> None:
         ...
     def format_string(self, value, section_name=None) -> _t.Union[_t.Text, _t.Any]:
         ...
@@ -97,4 +101,7 @@ class ConfigParserC(__BaseDict):
     def get_section_class(self, section_name: _t.Text):
         ...
     def _add_section(self, section_name: _t.Text) -> Section:
+        ...
+
+    def generate_config_string(self) -> _t.Text:
         ...

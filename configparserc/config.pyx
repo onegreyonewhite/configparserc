@@ -77,7 +77,13 @@ cdef object __get_or_create_section_recursive(list section_name_list, str full_n
         section = <object>PyDict_GetItem(dict_ptr, key)
 
     if name_len > 1:
-        return __get_or_create_section_recursive(section_name_list[1:], full_name, section, config, carret_pos + key_len + 1)
+        return __get_or_create_section_recursive(
+            section_name_list[1:],
+            full_name,
+            section,
+            config,
+            carret_pos + key_len + 1
+        )
 
     return section
 
@@ -442,6 +448,27 @@ cdef class Section(__BaseDict):
             super().__init__(default)
         else:
             super().__init__()
+
+    cdef Section get_parent(self):
+        cdef:
+            list parent_path
+            Section parent
+
+        parent_path = self.name.split('.')[:-1]
+        if not parent_path:
+            return None
+        parent = self.config[parent_path.pop(0)]
+        for sub in parent_path:
+            parent = parent[sub]
+        return parent
+
+    @property
+    def parent(self):
+        return self.get_parent()
+
+    @property
+    def main_config(self):
+        return self.config
 
     def __repr__(self):
         return json.dumps(self.all())

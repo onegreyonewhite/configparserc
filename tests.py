@@ -1,6 +1,7 @@
 import os
 import unittest
 import tempfile as tmp
+from copy import deepcopy
 from pathlib import Path
 
 try:
@@ -72,6 +73,13 @@ class ConfigTestCase(unittest.TestCase):
         class TestAppendSection(AppendSection):
             pass
 
+        class TestBasedOnParentSection(TestKeyHandler):
+            def key_handler_to_all(self, key):
+                result = super().key_handler_to_all(key)
+                if self.parent.get(key, None) == '1':
+                    return result
+                return result.lower()
+
         class TestConfigParserC(ConfigParserC):
             section_class_another = TestSecondSection
             section_class_append = TestAppendSection
@@ -80,8 +88,11 @@ class ConfigTestCase(unittest.TestCase):
                 'another.keyhandler': TestKeyHandler,
                 'add_item.subs': TestFirstSection,
                 'db': DBDefaultSettings,
+                'parent': TestAppendSection,
+                'parent.options': TestBasedOnParentSection,
             }
             defaults = {
+                'parent': {},
                 'append': {
                     'exists': '123'
                 },
@@ -127,9 +138,16 @@ class ConfigTestCase(unittest.TestCase):
         config_text = '[another]\nanother_key1 = some_new_value'
         config_test_default = '[db]\nengine = django.db.backends.mysql\nname = vsttest\nuser = vsttest\npassword = vsttest\nhost = localhost\nport = 3306\n[db.options]\ninit_command = some_command'
 
-        self.assertEqual(list(test_parser.keys()), ['append', 'withdefault', 'another', 'db', 'subdef'])
+        self.assertEqual(list(test_parser.keys()), ['parent', 'append', 'withdefault', 'another', 'db', 'subdef'])
 
         config_data = {
+            'parent': {
+                'test': '1',
+                'options': {
+                    'test': 'value',
+                    "test2": 'value',
+                }
+            },
             'main': {
                 'key1': 'value4',
                 'key2': 251,
@@ -178,6 +196,7 @@ class ConfigTestCase(unittest.TestCase):
                     'default_subs_key': 'default_subs_value'
                 }
             },
+            'deep': {"deep": {"deep": {"options": {"key": "value"}}}},
             'gettype': {
                 'toint': '257',
                 'tobool': 'False',
@@ -226,6 +245,9 @@ class ConfigTestCase(unittest.TestCase):
                 "item2": '123'
             }
         }
+        final_data = deepcopy(config_data)
+        final_data['parent']['options']['TEST'] = final_data['parent']['options'].pop('test')
+        final_data['another']['keyhandler']['HANDLER'] = final_data['another']['keyhandler'].pop('handler')
 
         # Parse files and text
         test_parser.parse_files(files_list)
@@ -244,6 +266,7 @@ class ConfigTestCase(unittest.TestCase):
         # Compare data
         self.assertDictEqual(test_parser, config_data)
         self.assertEqual(len(str(test_parser)), len(str(config_data)))
+        self.assertDictEqual(test_parser.all(), final_data)
 
         # Test method `all()` for config and compare with data
         self.assertDictEqual(test_parser['main'].all(), config_data['main'])
@@ -340,6 +363,11 @@ class ConfigTestCase(unittest.TestCase):
         )
         parser_from_out_str.parse_text(test_parser.generate_config_string())
         self.assertDictEqual(parser_from_out_str.all(), test_parser.all())
+
+        # Check section properties
+        self.assertTrue(test_parser['main'].main_config is test_parser)
+        self.assertEqual(test_parser['main'].parent, None)
+        self.assertTrue(test_parser['deep']['deep']['deep']['options'].parent is test_parser['deep']['deep']['deep'])
 
     def test_sections_custom_working(self):
         class TestFirstLevelSection(Section):
