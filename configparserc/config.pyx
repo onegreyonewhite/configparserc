@@ -20,7 +20,7 @@ import os
 import typing as _t
 import re
 import json
-import pytimeparse
+import pytimeparse2
 import yaml
 from functools import reduce
 from .tools import File
@@ -169,7 +169,7 @@ cdef class BoolType(BaseType):
 
 cdef class IntSecondsType(BaseType):
     def convert(self, value):
-        value = pytimeparse.parse(str(value)) or value
+        value = pytimeparse2.parse(str(value)) or value
         return int(value)
 
 
