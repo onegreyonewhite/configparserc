@@ -398,7 +398,7 @@ kwargs = dict(
     packages=find_packages(exclude=['tests']+ext_list),
     ext_modules_list=ext_list,
     install_requires=[
-        'pytimeparse==1.1.8',
+        'pytimeparse2==1.2.0',
         'pyyaml>=3.13,<5.4'
     ],
     project_urls={
