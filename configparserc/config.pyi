@@ -83,7 +83,13 @@ class ConfigParserC(__BaseDict):
     __sections_map: _t.Dict
     __format_kwargs: _t.Dict
 
-    def __init__(self, section_overload: _t.Dict = None, section_defaults: _t.Dict = None, format_kwargs: _t.Dict = None):
+    def __init__(
+        self,
+        section_overload: _t.Dict = None,
+        section_defaults: _t.Dict = None,
+        format_kwargs: _t.Dict = None,
+        format_exclude_sections: _t.Tuple = None,
+    ):
         super().__init__()
 
     def parse_files(self, filename_array: _t.Sequence) -> None:
