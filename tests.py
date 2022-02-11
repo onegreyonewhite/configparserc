@@ -130,13 +130,15 @@ class ConfigTestCase(unittest.TestCase):
         test_parser = TestConfigParserC(
             section_overload=dict(main=TestFirstSection, add_item=TestSectionFunctional,
                                   withdefault=TestDefaultSettings),
-            format_kwargs=format_kwargs
+            format_kwargs=format_kwargs,
+            format_exclude_sections=('unformat',)
         )
         files_list = ['test_conf.ini', 'test_conf2.ini', 'test_conf3.ini', 'test_yaml_config.yaml']
         files_list.append('sljkdhkjlsjdglksdjsdhfskjfwehwioejksn')
         files_list = map(lambda x: os.path.join(os.path.dirname(__file__), x), files_list)
         config_text = '[another]\nanother_key1 = some_new_value'
         config_test_default = '[db]\nengine = django.db.backends.mysql\nname = vsttest\nuser = vsttest\npassword = vsttest\nhost = localhost\nport = 3306\n[db.options]\ninit_command = some_command'
+        config_test_default += '\n[unformat]\nkey = ${test}\n'
 
         self.assertEqual(list(test_parser.keys()), ['parent', 'append', 'withdefault', 'another', 'db', 'subdef'])
 
@@ -243,7 +245,10 @@ class ConfigTestCase(unittest.TestCase):
             'yaml_section': {
                 "item": "new string data",
                 "item2": '123'
-            }
+            },
+            'unformat': {
+                "key": "${test}"
+            },
         }
         final_data = deepcopy(config_data)
         final_data['parent']['options']['TEST'] = final_data['parent']['options'].pop('test')

@@ -225,11 +225,19 @@ cdef class ConfigParserC(__BaseDict):
         dict __sections_map
         dict section_defaults
         dict __format_kwargs
+        tuple __format_exclude_sections
 
-    def __init__(self, dict section_overload = None, dict section_defaults = None, dict format_kwargs = None):
+    def __init__(
+            self,
+            dict section_overload = None,
+            dict section_defaults = None,
+            dict format_kwargs = None,
+            tuple format_exclude_sections = (),
+    ):
         self.__sections_map = {}
         self.section_defaults = getattr(self, 'defaults', section_defaults or {}).copy()
         self.__format_kwargs = getattr(self, 'format_kwargs', {}).copy()
+        self.__format_exclude_sections = format_exclude_sections
 
         if format_kwargs:
             self.__format_kwargs.update(format_kwargs)
@@ -275,7 +283,7 @@ cdef class ConfigParserC(__BaseDict):
         return self[key]
 
     def format_string(self, value, section_name=None):
-        if isinstance(value, str) and '{' in value and '}' in value:
+        if isinstance(value, str) and '{' in value and '}' in value and section_name not in self.__format_exclude_sections:
             return value.format(
                 __section=section_name,
                 this=self.copy(),
