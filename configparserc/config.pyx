@@ -169,8 +169,7 @@ cdef class BoolType(BaseType):
 
 cdef class IntSecondsType(BaseType):
     def convert(self, value):
-        value = pytimeparse2.parse(str(value)) or value
-        return int(value)
+        return pytimeparse2.parse(str(value), raise_exception=True)
 
 
 cdef class ListType(BaseType):
