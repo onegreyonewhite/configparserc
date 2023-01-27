@@ -1,7 +1,7 @@
 # cython: c_string_type=str, c_string_encoding=utf8
 """
 The ConfigParserC Project (https://gitlab.com/onegreyonewhite/configparserc)
-Copyright (C) 2019-2020 Sergey Klyuykov
+Copyright (C) 2019-2023 Sergey Klyuykov
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

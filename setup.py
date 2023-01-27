@@ -32,6 +32,7 @@ except ImportError:
     has_sphinx = False
 
 
+PY_MAJOR, PY_MINOR = sys.version_info[0:2]
 ignored_keys = ['-h', '--help', '--version']
 is_help = any([a for a in ignored_keys if a in sys.argv])
 is_develop = 'develop' in sys.argv
@@ -120,11 +121,12 @@ def make_extensions(extensions_list, packages):
     extra_compile_args = [
         '-g0', '-ggdb1',
         "-fno-strict-aliasing",
-        "-fno-var-tracking-assignments",
+        "-fno-var-tracking-assignments" if PY_MINOR != 6 else "",
         "-pipe", "-std=c99", '-Werror=sign-compare',
     ]
     if 'compile' in sys.argv:
         extra_compile_args.append("-DBUILD_FROM_SOURCE")
+    extra_compile_args = list(filter(bool, extra_compile_args))
     ext_modules = list(
         make_extention(m, f, extra_compile_args)
         for m, f in extensions_dict.items()
@@ -398,7 +400,7 @@ kwargs = dict(
     packages=find_packages(exclude=['tests']+ext_list),
     ext_modules_list=ext_list,
     install_requires=[
-        'pytimeparse2~=1.5.0',
+        'pytimeparse2~=1.6.0',
         'pyyaml>=3.13,<5.4'
     ],
     project_urls={
