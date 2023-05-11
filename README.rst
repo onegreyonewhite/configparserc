@@ -23,6 +23,7 @@ Support converting values in formats:
 *  `BytesSizeType` - convert values to integer size of bytes (include suffixes 'K', 'M' and 'G' multiples of 1024).
 *  `BoolType` - convert 'False', 'false', 'True' and 'true' to valid Python bool type.
 *  `IntSecondsType` - convert time to seconds. Uses 'pytimeparse' python package.
+*  `TimedeltaType` - convert time to timdelta/relativedelta(if installed). Uses 'pytimeparse' python package.
 *  `ListType` - convert separated by symbol (default is comma) string to list of values.
 *  `JsonType` - convert json value to python value.
 

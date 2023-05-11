@@ -3,16 +3,16 @@
 import re
 import os
 import sys
+import subprocess
 import fnmatch
 import codecs
 import gzip
-import glob
 import shutil
 
 # allow setup.py to be run from any path
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
-from setuptools import find_packages, setup, Command
+from setuptools import find_packages, setup, errors, Command
 from setuptools.extension import Extension
 from setuptools.command.sdist import sdist as _sdist
 from setuptools.command.build_py import build_py as build_py_orig
@@ -190,10 +190,11 @@ def minify_static_files(base_dir, files, exclude=None):
                     with codecs.open(fext_file, 'w', encoding='utf-8') as static_file_fd:
                         static_file_fd.write(minified)
                     print('Minfied file {fext_file}.'.format(fext_file=fext_file))
-                with open(fext_file, 'rb') as f_in:
-                    with gzip.open("{}.gz".format(fext_file), 'wb') as f_out:
-                        shutil.copyfileobj(f_in, f_out)
-                print('Compressed file {fext_file}.'.format(fext_file=fext_file))
+                if not os.environ.get('NOT_COMPRESS', False):
+                    with open(fext_file, 'rb') as f_in:
+                        with gzip.open("{}.gz".format(fext_file), 'wb') as f_out:
+                            shutil.copyfileobj(f_in, f_out)
+                    print('Compressed file {fext_file}.'.format(fext_file=fext_file))
 
 
 def compile_py_func(fullname, compile_file_func):
@@ -375,12 +376,11 @@ def make_setup(**opts):
 
     webpack_path = os.path.join(os.getcwd(), 'webpack.config.js')
     if os.path.exists(webpack_path) and is_build and os.environ.get('DONT_YARN', "") != 'true':
-        yarn_build_command = 'devBuild' if is_develop else 'build'
         try:
-            os.system('yarn install --pure-lockfile')
-            os.system('yarn ' + yarn_build_command)
-        except Extension as err:
-            print(err)
+            subprocess.check_call(['yarn', 'install', '--pure-lockfile', '--mutex network'], stdout=sys.stdout, stderr=sys.stderr)
+            subprocess.check_call(['yarn', 'devBuild' if is_develop else 'build'], stdout=sys.stdout, stderr=sys.stderr)
+        except Exception as err:
+            raise errors.CompileError(str(err))
 
     setup(**opts)
 
@@ -400,7 +400,7 @@ kwargs = dict(
     packages=find_packages(exclude=['tests']+ext_list),
     ext_modules_list=ext_list,
     install_requires=[
-        'pytimeparse2~=1.6.0',
+        'pytimeparse2~=1.7.1',
         'pyyaml>=3.13,<5.4'
     ],
     project_urls={

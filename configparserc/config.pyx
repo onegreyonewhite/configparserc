@@ -172,6 +172,11 @@ cdef class IntSecondsType(BaseType):
         return pytimeparse2.parse(str(value), raise_exception=True)
 
 
+cdef class TimedeltaType(BaseType):
+    def convert(self, value):
+        return pytimeparse2.parse(str(value), raise_exception=True, as_timedelta=True)
+
+
 cdef class ListType(BaseType):
     cdef str separator
 

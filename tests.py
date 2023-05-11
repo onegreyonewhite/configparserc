@@ -2,6 +2,7 @@ import os
 import unittest
 import tempfile as tmp
 from copy import deepcopy
+from datetime import timedelta
 from pathlib import Path
 
 try:
@@ -50,6 +51,7 @@ class ConfigTestCase(unittest.TestCase):
             type_keybytes2 = BytesSizeType()
             type_keybytes3 = BytesSizeType()
             type_keybytes4 = BytesSizeType()
+            type_timedelta = TimedeltaType()
 
         class TestSecondSection(Section):
             pass
@@ -170,7 +172,8 @@ class ConfigTestCase(unittest.TestCase):
                 'jsonkey': [{"jkey": "jvalue"}],
                 'formatstr': 'value4',
                 'formatint': '251',
-                'without_type': '123'
+                'without_type': '123',
+                'timedelta': timedelta(days=4, hours=5, minutes=6, seconds=7, microseconds=8000),
             },
             'to_json': {
                 "jkey": "jvalue"
