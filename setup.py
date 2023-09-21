@@ -121,10 +121,10 @@ def make_extensions(extensions_list, packages):
     extra_compile_args = [
         '-g0', '-ggdb1',
         "-fno-strict-aliasing",
-        "-fno-var-tracking-assignments" if PY_MINOR != 6 else "",
+        "-fno-var-tracking-assignments",
         "-pipe", "-std=c99", '-Werror=sign-compare',
     ]
-    if 'compile' in sys.argv:
+    if 'sdist' in sys.argv:
         extra_compile_args.append("-DBUILD_FROM_SOURCE")
     extra_compile_args = list(filter(bool, extra_compile_args))
     ext_modules = list(
@@ -144,10 +144,11 @@ def make_extensions(extensions_list, packages):
             language_level=language_level,
             compiler_directives=dict(
                 linetrace='CYTHON_TRACE_NOGIL' in sys.argv,
-                profile=True,
+                profile='CYTHON_TRACE_NOGIL' in sys.argv,
                 c_string_type='str',
                 c_string_encoding='utf8'
             ),
+
         )
         return cythonize(ext_modules, **cy_kwargs), extensions_dict
     return ext_modules, extensions_dict
@@ -388,8 +389,7 @@ def make_setup(**opts):
 # end block
 
 ext_list = [
-    'configparserc.config',
-    'configparserc.tools',
+    'configparserc',
 ]
 
 if 'develop' in sys.argv:

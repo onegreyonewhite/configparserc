@@ -16,14 +16,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 """
+
+cdef extern from 'fix.h':
+    pass
+
 import os
 import typing as _t
 import re
 import json
+import datetime
 import pytimeparse2
 import yaml
 from functools import reduce
-from .tools import File
 
 
 cdef extern from '_config.h' nogil:
@@ -31,7 +35,6 @@ cdef extern from '_config.h' nogil:
 
 
 from libc.stdio cimport getline, FILE, fopen, fclose, printf, ftell
-from posix.stat cimport stat, struct_stat
 from posix.stdio cimport fmemopen
 from libc.stdlib cimport free
 from libc.string cimport strlen
@@ -40,6 +43,12 @@ from cpython.unicode cimport PyUnicode_Replace
 
 
 YAML_LOADER = getattr(yaml, 'CSafeLoader', yaml.SafeLoader)
+
+
+cdef __convert_for_represent(obj):
+    if isinstance(obj, datetime.timedelta):
+        return obj.total_seconds()
+    raise TypeError(f'Cannot represent {obj} with type {type(obj)}')  # pragma: no cover
 
 
 cdef dict __get_dict_from_dict_for_reduce(dict collect, str key):
@@ -363,16 +372,14 @@ cdef class ConfigParserC(__BaseDict):
     cdef _parse_file_by_name(self, char *filename):
         cdef:
             FILE *fd
-            struct_stat st
             int err
 
         with nogil:
             err = 0
-            stat(filename, &st)
             fd = fopen(filename, 'r')
         if fd == NULL:
             return err
-        err = self._parse_file(fd, st.st_size)
+        err = self._parse_file(fd, os.stat(filename).st_size)
         fclose(fd)
         return err
 
@@ -399,7 +406,7 @@ cdef class ConfigParserC(__BaseDict):
             raise ParseError(f'Couldnt parse config string without section or key-value in file `{filename}`.')
 
     def parse_yaml_file(self, filename):
-        with File(filename) as fd:
+        with open(filename) as fd:
             for document in yaml.load_all(fd, Loader=YAML_LOADER):
                 if not document:
                     continue
@@ -483,7 +490,7 @@ cdef class Section(__BaseDict):
         return self.config
 
     def __repr__(self):
-        return json.dumps(self.all())
+        return json.dumps(self.all(), default=__convert_for_represent)
 
     cdef __set_item_value(self, str key, object value):
         cdef:

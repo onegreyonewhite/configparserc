@@ -1,5 +1,6 @@
 import typing as _t
 
+__version__: _t.Text
 JsonBaseType = _t.Union[_t.Text, _t.SupportsInt, _t.SupportsFloat, _t.List, _t.Dict]
 
 class BaseType:

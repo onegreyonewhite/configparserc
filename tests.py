@@ -1,12 +1,10 @@
 import os
 import unittest
-import tempfile as tmp
 from copy import deepcopy
 from datetime import timedelta
-from pathlib import Path
 
 try:
-    from configparserc.config import *
+    from configparserc import *
 except ImportError:  # nocv
     import pyximport
     pyximport.install(
@@ -14,15 +12,11 @@ except ImportError:  # nocv
         setup_args=dict(
             include_dirs=[
                 '/'.join([os.path.dirname(__file__), 'include']),
-                '/'.join([os.path.dirname(__file__), 'configparserc', 'include']),
                 '/'.join(['.', os.path.dirname(__file__), 'include']),
-                '/'.join(['.', os.path.dirname(__file__), 'configparserc', 'include']),
             ]
         )
     )
-    from configparserc.config import *
-
-from configparserc.tools import File as ToolFile, get_file_value
+    from configparserc import *
 
 
 class ConfigTestCase(unittest.TestCase):
@@ -272,7 +266,9 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(isinstance(test_parser['another']['sub'], TestThirdSection))
 
         # Compare data
-        self.assertDictEqual(test_parser, config_data)
+        self.assertEqual(config_data['main'], test_parser['main'], repr(test_parser['main']))
+        self.assertEqual(config_data['withdefault'], test_parser['withdefault'], repr(test_parser['withdefault']))
+        self.assertDictEqual(test_parser, config_data, repr(test_parser))
         self.assertEqual(len(str(test_parser)), len(str(config_data)))
         self.assertDictEqual(test_parser.all(), final_data)
 
@@ -404,82 +400,6 @@ class ConfigTestCase(unittest.TestCase):
         config['first'] = {"second": {'key1': "3"}}
         section_data = section.all()
         self.assertEqual(section_data['second']['key1'], 3)
-
-
-class FileTestCase(unittest.TestCase):
-    def __get_a_lot_of_text(self, limit=1000):
-        text = ''
-        for i in range(1000):
-            text += f'{i}. A lot of ordinary text.\n'
-        return text
-
-    def test_file_read(self):
-        text = self.__get_a_lot_of_text()
-        with tmp.NamedTemporaryFile(mode='w') as fd:
-            fd.write(text)
-            fd.flush()
-            with ToolFile(fd.name) as tmp_fd:
-                self.assertEqual(len(tmp_fd), len(text))
-                self.assertEqual(tmp_fd.read(), text)
-
-            with ToolFile(fd.name) as tmp_fd:
-                self.assertEqual(
-                    '\n'.join(l for l in tmp_fd.readlines()),
-                    text
-                )
-                self.assertTrue(tmp_fd.feof())
-
-            with ToolFile(fd.name) as tmp_fd:
-                self.assertEqual(
-                    tmp_fd.readline().rsplit('\n', 1)[0],
-                    text.split('\n')[0]
-                )
-                self.assertTrue(not tmp_fd.feof())
-
-            with ToolFile(fd.name) as tmp_fd:
-                self.assertEqual(
-                    tmp_fd.read(10),
-                    text[:10]
-                )
-
-    def test_get_file_value(self):
-        value = 'Some secret value'
-        with tmp.NamedTemporaryFile(mode='w') as fd:
-            fd.write(value)
-            fd.write("\n\n")
-            fd.flush()
-
-            self.assertEqual(value, get_file_value(fd.name))
-
-        self.assertEqual(
-            'Check default value',
-            get_file_value('/bin/doent_existed_file', 'Check default value')
-        )
-
-    def test_file_write(self):
-        text = self.__get_a_lot_of_text()
-        with tmp.TemporaryDirectory() as tmpdir:
-            path = Path(os.path.join(tmpdir, '1.txt'))
-            with ToolFile(str(path), 'w') as fd:
-                fd.write(text)
-                fd.flush()
-
-            with path.open('r') as fd:
-                self.assertEqual(fd.read(), text)
-
-    def test_error_file(self):
-        path = Path(__file__).parent / Path('test_conf_err2.ini')
-        with ToolFile(str(path), 'r') as fd:
-            with self.assertRaises(IOError):
-                fd.write('\n')
-
-        with ToolFile(str(path/'does_not_exists'), 'w') as fd:
-            with self.assertRaises(OSError):
-                fd.write('\n')
-            self.assertEqual(len(fd), 0)
-
-        with self.assertRaises(IOError):
-            get_file_value(str(path/'does_not_exists'), raise_error=True)
 
 
 if __name__ == '__main__':
