@@ -10,7 +10,8 @@ import gzip
 import shutil
 
 # allow setup.py to be run from any path
-os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
+current_dir = os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir))
+os.chdir(current_dir)
 
 from setuptools import find_packages, setup, errors, Command
 from setuptools.extension import Extension
@@ -123,6 +124,7 @@ def make_extensions(extensions_list, packages):
         "-fno-strict-aliasing",
         "-fno-var-tracking-assignments",
         "-pipe", "-std=c99", '-Werror=sign-compare',
+        "-U_FORTIFY_SOURCE",
     ]
     if 'sdist' in sys.argv:
         extra_compile_args.append("-DBUILD_FROM_SOURCE")

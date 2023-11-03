@@ -17,8 +17,13 @@ limitations under the License.
 
 """
 
-cdef extern from 'fix.h':
+cdef extern from 'fix.h' nogil:
     pass
+
+
+cdef extern from '_config.h' nogil:
+    int __has_only_whitespaces(char*)
+
 
 import os
 import typing as _t
@@ -28,11 +33,6 @@ import datetime
 import pytimeparse2
 import yaml
 from functools import reduce
-
-
-cdef extern from '_config.h' nogil:
-    int __has_only_whitespaces(char*)
-
 
 from libc.stdio cimport getline, FILE, fopen, fclose, printf, ftell
 from posix.stdio cimport fmemopen
