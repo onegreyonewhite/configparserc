@@ -397,7 +397,7 @@ if 'develop' in sys.argv:
 
 kwargs = dict(
     name='configparserc',
-    packages=find_packages(exclude=['tests']+ext_list),
+    packages=find_packages(exclude=['tests']),
     ext_modules_list=ext_list,
     install_requires=[
         'pytimeparse2~=1.7.1',
@@ -408,6 +408,7 @@ kwargs = dict(
         "Source Code": "https://gitlab.com/onegreyonewhite/configparserc.git",
         "Releases": "https://pypi.org/project/configparserc/#history",
     },
+    include_package_data=True,
 )
 
 make_setup(**kwargs)

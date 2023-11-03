@@ -1,6 +1,6 @@
 include README.rst LICENSE NOTICE
 include setup.cfg
-include py.typed
-include configparserc.pyi
+include configparserc/py.typed
+include configparserc/__init__.pyi
 include include/_config.h
 include include/fix.h
