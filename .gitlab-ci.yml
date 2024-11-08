@@ -5,8 +5,6 @@ variables:
   GET_SOURCES_ATTEMPTS: 3
   ARTIFACT_DOWNLOAD_ATTEMPTS: 3
   RESTORE_CACHE_ATTEMPTS: 3
-  CC: "ccache gcc"
-
 
 stages:
   - test
@@ -15,6 +13,8 @@ stages:
 run_tests:
   stage: test
   image: registry.gitlab.com/vstconsulting/images:ubuntu-v4
+  variables:
+    CC: "ccache gcc"
   script:
    - tox
   rules:
