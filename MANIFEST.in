@@ -1,5 +1,5 @@
 include README.rst LICENSE NOTICE
-include setup.cfg
+include pyproject.toml
 include configparserc/py.typed
 include configparserc/__init__.pyi
 include include/_config.h

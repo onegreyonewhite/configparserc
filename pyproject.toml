@@ -1,0 +1,89 @@
+[build-system]
+requires = ["setuptools>=61.2", "vstcompile~=3.0", "cython~=3.0.11"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "configparserc"
+version = "3.0.0"
+authors = [
+    { name = "Sergey Klyuykov", email = "onegreyonewhite@mail.ru" },
+]
+maintainers = [
+    { name = "Sergey Klyuykov", email = "onegreyonewhite@mail.ru" }
+]
+keywords = ["config", "configparser", "configparserc", "ini"]
+license = {text = "Apache Software License"}
+description = "Python (Cython) based implementation of ConfigParser based on POSIX and stdlib functions."
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Operating System :: POSIX",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: C",
+    "Programming Language :: Cython",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "pytimeparse2~=1.7.1",
+    "pyyaml>=3.13,<6.1",
+]
+
+[project.urls]
+"Issue Tracker" = "https://gitlab.com/onegreyonewhite/configparserc/issues"
+Source = "https://gitlab.com/onegreyonewhite/configparserc"
+
+[project.readme]
+file = "README.rst"
+content-type = "text/x-rst"
+
+[tool.setuptools]
+zip-safe = false
+include-package-data = true
+license-files = ["LICENSE"]
+
+[tool.setuptools.packages.find]
+include = ["configparserc", "configparserc.*"]
+namespaces = false
+
+[tool.flake8]
+max-line-length = 120
+
+[tool.coverage.run]
+source = [
+    "configparserc",
+    "tests",
+]
+parallel = true
+concurrency = [
+    "thread",
+    "multiprocessing"
+]
+plugins = [
+    "Cython.Coverage",
+]
+omit = [
+    "*.tox/*",
+    "setup.py",
+]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+exclude_lines = [
+    "MemoryError",
+    "nocv",
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if _t.TYPE_CHECKING:",
+    "if typing.TYPE_CHECKING:",
+]
